@@ -43,11 +43,14 @@ Gem::Specification.new do |s|
 
   ## List your runtime dependencies here. Runtime dependencies are those
   ## that are needed for an end user to actually USE your code.
-  s.add_dependency('DEPNAME', [">= 1.1.0", "< 2.0.0"])
+  s.add_dependency('execjs', [">= 0.3.0"])
+  s.add_dependency('multi_json', ["~> 1.0", ">= 1.0.2"])
 
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
-  s.add_development_dependency('DEVDEPNAME', [">= 1.1.0", "< 2.0.0"])
+  s.add_development_dependency('rake', ["~> 0.9.2"])
+  s.add_development_dependency('rspec', ["~> 2.7"])
+  s.add_development_dependency('bundler', ["~> 1.0"])
 
   ## Leave this section as-is. It will be automatically generated from the
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
@@ -55,17 +58,20 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.files = %w[
     Gemfile
+    LICENSE.txt
+    README.md
     Rakefile
-    lib/sweet.rb
+    lib/sweetjs.rb
     lib/sweetjs/escodegen.js
     lib/sweetjs/sweet.js
     lib/sweetjs/underscore.js
     spec/spec_helper.rb
     spec/sweet_spec.rb
+    sweetjs.gemspec
   ]
   # = MANIFEST =
 
   ## Test files will be grabbed from the file list. Make sure the path glob
   ## matches what you actually use.
-  s.test_files = s.files.select { |path| path =~ /^test\/test_.*\.rb/ }
+  s.test_files = s.files.select { |path| path =~ /^spec\/.+\.rb/ }
 end
