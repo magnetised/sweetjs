@@ -1,5 +1,5 @@
 # encoding: UTF-8
-require 'sweet'
+require 'sweetjs'
 require 'rspec'
 
 # Requires supporting files with custom matchers and macros, etc,

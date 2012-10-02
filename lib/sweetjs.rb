@@ -1,10 +1,17 @@
+# encoding: UTF-8
+
 require "execjs"
 require "multi_json"
 
-class Sweet
+class SweetJS
+  VERSION = "0.1.0"
+  REQUIRES = %w(underscore escodegen sweet)
+
   Error = ExecJS::Error
 
-  REQUIRES = %w(underscore escodegen sweet)
+  def self.compile(source)
+    self.new.compile(source)
+  end
 
   def context
     @context ||= build_context
@@ -45,16 +52,16 @@ class Sweet
   end
 
   def read_source_file(name)
-    File.open(File.expand_path("../#{name}.js", __FILE__), "r:UTF-8").read
+    File.open(File.expand_path("../sweetjs/#{name}.js", __FILE__), "r:UTF-8").read
   end
 
   def compile(source)
     source = source.respond_to?(:read) ? source.read : source.to_s
     js = []
     js << "var sweet = require('sweet');"
-    js << "var gen = require('escodegen');"
+    js << "var escodegen = require('escodegen');"
     js << "var source = #{json_encode(source)};"
-    js << "var result = gen.generate(sweet.parse(source));"
+    js << "var result = escodegen.generate(sweet.parse(source));"
     js << "return result;"
     context.exec js.join("\n")
   end
