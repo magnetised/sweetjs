@@ -2,26 +2,63 @@ require "execjs"
 require "multi_json"
 
 class Sweet
-  Sources = %w(require underscore escodegen sweet).map { |js| File.expand_path("../#{js}.js", __FILE__) }
+  REQUIRES = %w(underscore escodegen sweet)
+  # Sources = %w(require underscore escodegen sweet).map { |js| File.expand_path("../#{js}.js", __FILE__) }
 
   DEFAULTS = {}
 
   def initialize(options = {})
     @options = DEFAULTS.merge(options)
-    @context = ExecJS.compile(context)
+    puts js_context
+    @context = ExecJS.compile(js_context)
   end
 
-  def context
+  def js_context
 
-    Sources.map { |source| puts source; File.open(source, "r:UTF-8").read }.join("\n")
+    source = (<<-JS)
+      var require = (function() {
+        var modules = {};
+        var require = function(module) {
+          return modules[module];
+        };
+    JS
+
+    REQUIRES.each do |file|
+      source << (<<-JS)
+
+        ////////////////////////////////////////////////////////////
+        // #{ file }.js START
+
+        modules["#{file}"] = function() {
+            var exports = {}, module = {};
+            module.exports = exports;
+
+            #{ read_source_file(file) }
+
+            return exports;
+        }.call({});
+
+        // #{ file }.js END
+      JS
+    end
+    source << (<<-JS)
+        return require;
+      }());
+    JS
+    source
+  end
+
+  def read_source_file(name)
+    File.open(File.expand_path("../#{name}.js", __FILE__), "r:UTF-8").read
   end
 
   def compile(source)
     source = source.respond_to?(:read) ? source.read : source.to_s
     js = []
-    # js << "var _ = exports._"
+    js << "var sweet = require('sweet');"
+    js << "var gen = require('escodegen');"
     js << "var source = #{json_encode(source)};"
-    js << "var result = exports.generate(exports.parse(source));"
+    js << "var result = gen.generate(sweet.parse(source));"
     js << "return result;"
     @context.exec js.join("\n")
   end
