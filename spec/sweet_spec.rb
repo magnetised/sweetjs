@@ -15,6 +15,14 @@ describe "Sweet" do
       }
     JS
     compiled = Sweet.new.compile(source)
-    puts compiled
+    compiled.should =~ /function sweet/
+  end
+
+  it "throws an exception when compilation fails" do
+    lambda {
+      compiled = Sweet.new.compile((<<-JS))
+        def sweet(a) { console.log("Macros are sweet!"); }
+      JS
+    }.should raise_error(Sweet::Error)
   end
 end

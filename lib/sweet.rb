@@ -2,19 +2,15 @@ require "execjs"
 require "multi_json"
 
 class Sweet
+  Error = ExecJS::Error
+
   REQUIRES = %w(underscore escodegen sweet)
-  # Sources = %w(require underscore escodegen sweet).map { |js| File.expand_path("../#{js}.js", __FILE__) }
 
-  DEFAULTS = {}
-
-  def initialize(options = {})
-    @options = DEFAULTS.merge(options)
-    puts js_context
-    @context = ExecJS.compile(js_context)
+  def context
+    @context ||= build_context
   end
 
-  def js_context
-
+  def build_context
     source = (<<-JS)
       var require = (function() {
         var modules = {};
@@ -43,9 +39,9 @@ class Sweet
     end
     source << (<<-JS)
         return require;
-      }());
+      }.call(this));
     JS
-    source
+    ExecJS.compile(source)
   end
 
   def read_source_file(name)
@@ -60,7 +56,7 @@ class Sweet
     js << "var source = #{json_encode(source)};"
     js << "var result = gen.generate(sweet.parse(source));"
     js << "return result;"
-    @context.exec js.join("\n")
+    context.exec js.join("\n")
   end
 
   if MultiJson.respond_to? :dump
