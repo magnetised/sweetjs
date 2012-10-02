@@ -33,12 +33,12 @@ class SweetJS
         // #{ file }.js START
 
         modules["#{file}"] = function() {
-            var exports = {}, module = {};
-            module.exports = exports;
+          var exports = {}, module = {};
+          module.exports = exports;
 
-            #{ read_source_file(file) }
+          #{ read_source_file(file) }
 
-            return exports;
+          return exports;
         }.call({});
 
         // #{ file }.js END
