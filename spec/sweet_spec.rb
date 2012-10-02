@@ -3,8 +3,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "SweetJS" do
-  it "compiles macros" do
-    source = (<<-JS)
+  let(:source) {
+    (<<-JS)
       macro def {
         case $name:ident $params $body => {
           function $name $params $body
@@ -14,21 +14,14 @@ describe "SweetJS" do
         console.log("Macros are sweet!");
       }
     JS
+  }
+
+  it "compiles macros" do
     compiled = SweetJS.new.compile(source)
     compiled.should =~ /function sweet/
   end
 
   it "has a class method to compile macros" do
-    source = (<<-JS)
-      macro def {
-        case $name:ident $params $body => {
-          function $name $params $body
-        }
-      }
-      def sweet(a) {
-        console.log("Macros are sweet!");
-      }
-    JS
     compiled = SweetJS.compile(source)
     compiled.should =~ /function sweet/
   end
@@ -39,5 +32,12 @@ describe "SweetJS" do
         def sweet(a) { console.log("Macros are sweet!"); }
       JS
     }.should raise_error(SweetJS::Error)
+  end
+
+  it "compiles IO objects as well as strings" do
+    io = StringIO.new(source)
+    lambda {
+      SweetJS.compile(io).should =~ /function sweet/
+    }.should_not raise_error(SweetJS::Error)
   end
 end
